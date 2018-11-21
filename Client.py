@@ -1,5 +1,5 @@
 import socket
-
+  
 hostname, sld, tld, port = 'www', 'integralist', 'co.uk', 80
 target = '{}.{}.{}'.format(hostname, sld, tld)
 
