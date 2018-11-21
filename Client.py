@@ -1,5 +1,6 @@
 import socket
 import os.path
+import platform
 
 version = "P2P-CI/1.0"
 
@@ -13,21 +14,28 @@ def addRFCMessage(rfc, hostname, port_number):
 	retMsg = "ADD RFC " + str(rfc.number) + " " + version + "\n"
 	retMsg += "Host: " + hostname + "\n"
 	retMsg += "Port: " + str(port_number) + "\n"
-	retMsg += "Title: " + str(rfc.title)
+	retMsg += "Title: " + str(rfc.title) + "\n"
 	return retMsg
 
 def listAllMessage(hostname, port_number):
 	retMsg = "LIST ALL " + version + "\n"
 	retMsg += "Host: " + hostname + "\n"
-	retMsg += "Port: " + str(port_number)
+	retMsg += "Port: " + str(port_number) + "\n"
 	return retMsg
 
 def lookupRFCMessage(rfcNumber, rfcTitle, hostname, port_number):
 	retMsg = "LOOKUP RFC " + str(rfcNumber) + " " + version + "\n"
 	retMsg += "Host: " + hostname + "\n"
 	retMsg += "Port: " + str(port_number) + "\n"
-	retMsg += "Title: " + rfcTitle
+	retMsg += "Title: " + rfcTitle + "\n"
 	return retMsg
+
+def downloadRFCMessage(rfcNumber, host_name):
+	retMsg = "GET " + rfcNumber + " " + version + "\n"
+	retMsg += "Host: " + host_name + "\n"
+	retMsg += "OS: " + platform.system() + " " + platform.release() + " " + platform.version() + "\n"
+	return retMsg
+
 
 # create an ipv4 (AF_INET) socket object using the tcp protocol (SOCK_STREAM)
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,11 +44,11 @@ hostname = input("Enter Hostname ")
 port_number = input("Enter Port number ")
 
 
-num_of_rfc = input("Enter Number for RFCs ")
+num_of_rfc = int(input("Enter Number for RFCs "))
 rfc_list = []
 i = 0
 while i < num_of_rfc:
-	temp_rfc = RFC(input("Enter RFC Number "), raw_input("Enter RFC title "), raw_input("Enter Location of file "))
+	temp_rfc = RFC(input("Enter RFC Number "), input("Enter RFC title "), input("Enter Location of file "))
 	if not os.path.isfile(temp_rfc.file_location):
 		print("File does not exists. Please Re-enter details ")
 	else:
@@ -52,7 +60,7 @@ while i < num_of_rfc:
 client.connect(('127.0.0.1', 7734))
 
 # send initial hostname and portNumber
-data = "Connect: hostname:" + hostname + " portNumber:" + str(port_number)
+data = "Connect: hostname:" + hostname + " portNumber:" + str(port_number) +"\n"
 data = bytearray(data, 'utf8')
 client.send(data)
 
@@ -65,4 +73,29 @@ response = client.recv(4096)
 print(response)
 
 while True:
-	inp = input('Accpeted Commands are "ADD", "LOOKUP", "LIST", "DOWNLOAD" and "EXIT"')
+	inp = input('Accpeted Commands are "ADD" to add a locally available RFC to the servers index,\n"LOOKUP" to find peers that have the specified RFC\n"LIST" to request the whole index of RFCs from the server,\n"DOWNLOAD" to download RFC from peer\n and "EXIT" to exit\n')
+	if inp == "ADD":
+		temp_rfc = RFC(input("Enter RFC Number "), input("Enter RFC title "), input("Enter Location of file "))
+		if not os.path.isfile(temp_rfc.file_location):
+			print("File does not exists ")
+		else:
+			rfc_list.append(temp_rfc)
+			data = bytearray(addRFCMessage(temp_rfc, hostname, port_number), 'utf8')
+			client.send(data)
+	elif inp == "LOOKUP":
+		data = bytearray(lookupRFCMessage(input("Enter RFC Number "), input("Enter RFC Title "), hostname, port_number), 'utf8')
+		client.send(data)
+	elif inp == "LIST":
+		data = bytearray(listAllMessage(hostname, port_number),'utf8')
+		client.send(data)
+	elif inp == "DOWNLOAD":
+		rfcNumber = input("Enter RFC number to be downloaded ")
+		hostname = input("Enter hostname from which to download the RFC ")
+		portNumber = input("Enter port number of the peer ")
+		peerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		peerSocket.connect((hostname, port_number))
+		data = bytearray(downloadRFCMessage(rfcNumber, hostname), 'utf8')
+		peerSocket.send(data)
+	elif inp == "EXIT":
+		client.close()
+		break
