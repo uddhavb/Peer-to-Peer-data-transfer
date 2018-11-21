@@ -32,8 +32,9 @@ def lookupRFCMessage(rfcNumber, rfcTitle, hostname, port_number):
 # create an ipv4 (AF_INET) socket object using the tcp protocol (SOCK_STREAM)
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-hostname = raw_input("Enter Hostname ")
+hostname = input("Enter Hostname ")
 port_number = input("Enter Port number ")
+
 
 num_of_rfc = input("Enter Number for RFCs ")
 rfc_list = []
