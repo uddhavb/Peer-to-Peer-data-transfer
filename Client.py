@@ -64,4 +64,4 @@ response = client.recv(4096)
 print(response)
 
 while True:
-	inp = raw_input('Enter "1" for ADD\n "2"')
+	inp = input('Accpeted Commands are "ADD", "LOOKUP", "LIST", "DOWNLOAD" and "EXIT"')
