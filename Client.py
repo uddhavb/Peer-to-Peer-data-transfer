@@ -20,9 +20,11 @@ for i in range(0, num_of_rfc):
 client.connect(('127.0.0.1', 7734))
 
 # send some data (in this case a HTTP GET request)
-client.send('GET /index.html HTTP/1.1\r\nHost: {}.{}\r\n\r\n'.format(sld, tld))
+data = 'GET /index.html HTTP/1.1\r\nHost: {}.{}\r\n\r\n'.format(sld, tld)
+data = bytearray(data)
+client.send(data)
 
 # receive the response data (4096 is recommended buffer size)
 response = client.recv(4096)
 
-print response
+print(response)
