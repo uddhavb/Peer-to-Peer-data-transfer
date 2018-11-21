@@ -11,8 +11,8 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(('127.0.0.1', 7734))
 
 # send some data (in this case a HTTP GET request)
-data = 'GET /index.html HTTP/1.1\r\nHost: {}.{}\r\n\r\n'.format(sld, tld)
-data = bytearray(data)
+data = "GET /index.html HTTP/1.1\r\nHost: {}.{}\r\n\r\n".format(sld, tld)
+data = bytearray(data, 'utf8')
 client.send(data)
 
 # receive the response data (4096 is recommended buffer size)
