@@ -36,11 +36,11 @@ hostname = input("Enter Hostname ")
 port_number = input("Enter Port number ")
 
 
-num_of_rfc = input("Enter Number for RFCs ")
+num_of_rfc = int(input("Enter Number for RFCs "))
 rfc_list = []
 i = 0
 while i < num_of_rfc:
-	temp_rfc = RFC(input("Enter RFC Number "), raw_input("Enter RFC title "), raw_input("Enter Location of file "))
+	temp_rfc = RFC(input("Enter RFC Number "), input("Enter RFC title "), input("Enter Location of file "))
 	if not os.path.isfile(temp_rfc.file_location):
 		print("File does not exists. Please Re-enter details ")
 	else:
@@ -65,4 +65,4 @@ response = client.recv(4096)
 print(response)
 
 while True:
-	inp = raw_input('Enter "1" for ADD\n "2"')
+	inp = input('Enter "1" for ADD\n "2"')
