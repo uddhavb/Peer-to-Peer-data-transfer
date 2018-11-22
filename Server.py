@@ -1,6 +1,6 @@
 import socket
 import threading
-
+import time
 peers = {}
 # peers = {hostname: port_number}
 
@@ -66,86 +66,94 @@ def handle_client_connection(client_socket):
     Host: thishost.csc.ncsu.edu
     Port: 5678
     '''
-    while True:
-        request = client_socket.recv(1024)
-        request = request.decode("utf-8")
-        print(request)
-        request = request.split('\n')
-        index = 0
-        print(request[index].split(), "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-        while request[index] != [] and index < len(request):
-            line = request[index]
-            line = line.split()
-            request[index] = line
-            print(line, len(line))
-            if line == []:
-                print("null input")
-            elif line[0] == "Connect:":
-                addToPeerList(line[1].split(':')[1], line[2].split(':')[1])
-                index+=1
-            elif line[0] == "ADD":
-                '''
-                P2P-CI/1.0 200 OK
-                RFC 123 A Proferred Official ICP thishost.csc.ncsu.edu 5678
-                '''
-                addToIndex(line[2], request[index + 1].split()[1], request[index + 3].split(':')[1:])
-                str_to_send = "P2P-CI/1.0 200 OK\nRFC " + line[2] +\
-                              " " + request[index + 1].split()[1] + \
-                              " " + str(request[index + 3].split(':')[1:]) + \
-                              " " + request[index + 2].split()[1]
-                client_socket.send(bytearray(str_to_send, "utf8"))
-                index += 4
-            elif line[0] == "LIST":
-                '''
-                version <sp> status code <sp> phrase <cr> <lf>
-                <cr> <lf>
-                RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
-                RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
-                ...
-                <cr><lf>
-                
-                
-                LIST ALL P2P-CI/1.0
-                Host: thishost.csc.ncsu.edu
-                Port: 5678
-        
-        
-                '''
-                list_of_rfcs = list()
-                str_to_send = line[2] + " 200 OK\n\n"
-                for rfc in list_of_rfcs:
-                    str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " " + rfc[2] + " " + request[index + 2].split()[1] + "\n"
+    try:
+        while True:
+            request = client_socket.recv(1024)
+            request = request.decode("utf-8")
+            request = request.split('\n')
+            index = 0
+            while request[index] != [] and index < len(request):
+                line = request[index]
+                line = line.split()
+                request[index] = line
+                if line == []:
+                    time.sleep(1)
+                elif line[0] == "Connect:":
+                    addToPeerList(line[1].split(':')[1], line[2].split(':')[1])
+                    exit_host = line[1].split(':')[1]
+                    exit_port = line[2].split(':')[1]
+                    index+=1
+                elif line[0] == "ADD":
+                    '''
+                    P2P-CI/1.0 200 OK
+                    RFC 123 A Proferred Official ICP thishost.csc.ncsu.edu 5678
+                    '''
+                    addToIndex(line[2], request[index + 1].split()[1], request[index + 3].split(':')[1:])
+                    str_to_send = "P2P-CI/1.0 200 OK\nRFC " + line[2] +\
+                                  " " + request[index + 1].split()[1] + \
+                                  " " + str(request[index + 3].split(':')[1:]) + \
+                                  " " + request[index + 2].split()[1]
                     client_socket.send(bytearray(str_to_send, "utf8"))
-                index += 3
-            elif line[0] == "LOOKUP":
-                '''
-                version <sp> status code <sp> phrase <cr> <lf>
-                <cr> <lf>
-                RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
-                RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
-                ...
-                <cr><lf>
-                '''
-                list_of_rfcs = lookup(line[2])
-                str_to_send = line[2] + " 200 OK\n\n"
-                for rfc in list_of_rfcs:
-                    str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " " + rfc[2] + " " + request[index + 2].split()[
-                        1] + "\n"
-                client_socket.send(bytearray(str_to_send, "utf8"))
-                index += 4
-            elif line[0] == "EXIT":
-                # EXIT hostname port
-                exit_host = line[1]
-                exit_port = line[2]
-                break;
-    print("-------------------------------------")
-    del peers[exit_host]
-    new_RFCs = []
-    for rfc in RFCs:
-        if rfc[2] != exit_host:
-            new_RFCs.append(rfc)
-    RFCs = new_RFCs
-    client_socket.close()
+                    index += 4
+                elif line[0] == "LIST":
+                    '''
+                    version <sp> status code <sp> phrase <cr> <lf>
+                    <cr> <lf>
+                    RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
+                    RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
+                    ...
+                    <cr><lf>
+                    
+                    
+                    LIST ALL P2P-CI/1.0
+                    Host: thishost.csc.ncsu.edu
+                    Port: 5678
+            
+            
+                    '''
+                    list_of_rfcs = list()
+                    str_to_send = line[2] + " 200 OK\n\n"
+                    for rfc in list_of_rfcs:
+                        str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " " + rfc[2] + " " + request[index + 2].split()[1] + "\n"
+                        client_socket.send(bytearray(str_to_send, "utf8"))
+                    index += 3
+                elif line[0] == "LOOKUP":
+                    '''
+                    version <sp> status code <sp> phrase <cr> <lf>
+                    <cr> <lf>
+                    RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
+                    RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
+                    ...
+                    <cr><lf>
+                    '''
+                    list_of_rfcs = lookup(line[2])
+                    str_to_send = line[2] + " 200 OK\n\n"
+                    for rfc in list_of_rfcs:
+                        str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " " + rfc[2] + " " + request[index + 2].split()[
+                            1] + "\n"
+                    client_socket.send(bytearray(str_to_send, "utf8"))
+                    index += 4
+                elif line[0] == "EXIT":
+                    # EXIT hostname port
+                    exit_host = line[1]
+                    exit_port = line[2]
+                    break;
+        print("-------------------------------------")
+        del peers[exit_host]
+        new_RFCs = []
+        for rfc in RFCs:
+            if rfc[2] != exit_host:
+                new_RFCs.append(rfc)
+        RFCs = new_RFCs
+        client_socket.close()
+    except KeyboardInterrupt:
+        del peers[exit_host]
+        new_RFCs = []
+        for rfc in RFCs:
+            if rfc[2] != exit_host:
+                new_RFCs.append(rfc)
+        RFCs = new_RFCs
+        client_socket.close()
 
 
 while True:
