@@ -55,21 +55,18 @@ def handle_peer_request(peer_sock):
 	requestedHostname = request[1].split(" ")[1]
 
 	if method != "GET":
-		print("400 Bad Request")
 		msg = responseHeader("400 Bad Request")
 		peer_sock.send(bytearray(msg, "utf8"))
 		# peer_sock.send(bytearray("\nEND\n", "utf8"))
 		peer_sock.close()
 		return
 	elif ver != version:
-		print("505 P2P-CI Version Not Supported")
 		msg = responseHeader("505 P2P-CI Version Not Supported")
 		peer_sock.send(bytearray(msg, "utf8"))
 		# peer_sock.send(bytearray("\nEND\n", "utf8"))
 		peer_sock.close()
 		return
 	elif requestedHostname != hostname:
-		print("400 Bad Request")
 		msg = responseHeader("400 Bad Request")
 		peer_sock.send(bytearray(msg, "utf8"))
 		# peer_sock.send(bytearray("\nEND\n", "utf8"))
@@ -77,11 +74,10 @@ def handle_peer_request(peer_sock):
 		return
 
 	for singleRFC in rfc_list:
-		print(str(singleRFC.number) + " find-> " + str(rfcNumber))
 		if str(rfcNumber) == str(singleRFC.number):
 # 			Send Data to server
-			print("200 OK")
-			msg = responseHeader("200 OK")
+			msg = singleRFC.title + "\n"
+			msg += responseHeader("200 OK")
 			# peer_sock.send(bytearray(msg, "utf8"))
 
 			msg += responseData(singleRFC.file_location)
@@ -94,7 +90,6 @@ def handle_peer_request(peer_sock):
 	msg = responseHeader("404 Not Found")
 	peer_sock.send(bytearray(msg, "utf8"))
 	# peer_sock.send(bytearray("\nEND\n", "utf8"))
-	print("Peer Close")
 	peer_sock.close()
 
 def responseHeader(status):
@@ -115,6 +110,16 @@ def responseData(fileName):
 	retMsg += file.read()
 	return retMsg
 
+def processAndSaveFile(response, rfcNumber, title):
+	response = response.split("\n")
+	responseCode = response[0].split(" ")
+	responseCode = " ".join(responseCode[1:])
+	if responseCode != "200 OK":
+		return
+	fileContent = "\n".join(response[6:])
+	f = open(title, "w+")
+	f.write(fileContent)
+	f.close()
 
 class UploadPeer(threading.Thread):
 
@@ -190,9 +195,15 @@ while True:
 		data = bytearray(lookupRFCMessage(input("Enter RFC Number "), input("Enter RFC Title "), hostname, port_number),
 						 'utf8')
 		client.send(data)
+		request = client.recv(1024)
+		request = request.decode("utf-8")
+		print(request)
 	elif inp == "LIST":
 		data = bytearray(listAllMessage(hostname, port_number), 'utf8')
 		client.send(data)
+		request = client.recv(1024)
+		request = request.decode("utf-8")
+		print(request)
 	elif inp == "DOWNLOAD":
 		rfcNumber = input("Enter RFC number to be downloaded ")
 		hostname = input("Enter hostname from which to download the RFC ")
@@ -204,8 +215,18 @@ while True:
 
 		request = peerSocket.recv(1024)
 		request = request.decode("utf-8")
+		title = request.split("\n", 1)
+		request = title[1]
+		title = title[0]
+		if version in title:
+			request = title + "\n" + request
 		print(request)
+		processAndSaveFile(request, rfcNumber, title)
 		peerSocket.close()
+		temp_rfc = RFC(rfcNumber, title, title)
+		rfc_list.append(temp_rfc)
+		data = bytearray(addRFCMessage(temp_rfc, hostname, port_number), 'utf8')
+		client.send(data)
 
 	elif inp == "EXIT":
 		client.close()
