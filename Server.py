@@ -29,13 +29,14 @@ def removeFromPeerList(hostname):
     del peers[hostname]
 
 
-def addToIndex(rfc_number, hostname, rfc_title):
+def addToIndex(rfc_number, rfc_title, hostname, port):
     global RFCs
     print("Adding")
-    RFCs.append([rfc_number, rfc_title, hostname])
+    RFCs.append([rfc_number, rfc_title, hostname, port])
 
 
 def lookup(rfc_number):
+    global RFCs
     print("lookup")
     for RFC in RFCs:
         if RFC[0] == rfc_number:
@@ -43,6 +44,7 @@ def lookup(rfc_number):
 
 
 def list():
+    global RFCs
     print("list all RFCs")
     list_of_rfcs = []
     for RFC in RFCs:
@@ -93,7 +95,7 @@ def handle_client_connection(client_socket):
                     P2P-CI/1.0 200 OK
                     RFC 123 A Proferred Official ICP thishost.csc.ncsu.edu 5678
                     '''
-                    addToIndex(line[2], request[index + 1].split()[1], request[index + 3].split(':')[1][1:])
+                    addToIndex(line[2], request[index + 3].split(':')[1][1:], request[index + 1].split()[1], request[index + 2].split()[1])
                     str_to_send = "P2P-CI/1.0 200 OK\nRFC " + line[2] +\
                                   " " + request[index + 1].split()[1] + \
                                   " " + str(request[index + 3].split(':')[1:]) + \
@@ -109,20 +111,17 @@ def handle_client_connection(client_socket):
                     ...
                     <cr><lf>
 
-
                     LIST ALL P2P-CI/1.0
                     Host: thishost.csc.ncsu.edu
                     Port: 5678
-
-
                     '''
                     list_of_rfcs = list()
-                    str_to_send = line[2] + " 200 OK\n\n"
+                    str_to_send = line[2] + " 200 OK\n"
                     print(list_of_rfcs)
                     for rfc in list_of_rfcs:
-                        str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " "+ rfc[2] + " " + request[index+2].split()[1] + "\n"
+                        str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " "+ rfc[2] + " " + rfc[3] + "\n"
                         print(type(str_to_send))
-                        client_socket.send(bytearray(str_to_send, "utf8"))
+                    client_socket.send(bytearray(str_to_send, "utf8"))
                     index += 3
                 elif line[0] == "LOOKUP":
                     '''
