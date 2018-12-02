@@ -233,6 +233,9 @@ while True:
 		rfc_list.append(temp_rfc)
 		data = bytearray(addRFCMessage(temp_rfc, hostname, port_number), 'utf8')
 		client.send(data)
+		request = client.recv(1024)
+		request = request.decode("utf8")
+		print(request.strip())
 
 	elif inp == "EXIT":
 		client.close()
