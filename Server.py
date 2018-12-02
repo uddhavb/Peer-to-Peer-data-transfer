@@ -18,11 +18,13 @@ print('Listening on {}:{}'.format(bind_ip, bind_port))
 
 
 def addToPeerList(hostname, port_number):
+    global peers
     print("Add host to list")
     peers[hostname] = port_number
 
 
 def removeFromPeerList(hostname):
+    global peers
     print("Remove host from list")
     del peers[hostname]
 
@@ -35,6 +37,7 @@ def addToIndex(rfc_number, hostname, portNumber, rfc_title):
 
 
 def lookup(rfc_number):
+    global RFCs
     print("lookup")
     for RFC in RFCs:
         if RFC[0] == rfc_number:
@@ -42,6 +45,7 @@ def lookup(rfc_number):
 
 
 def list():
+    global RFCs
     print("list all RFCs")
     list_of_rfcs = []
     for RFC in RFCs:
@@ -50,6 +54,7 @@ def list():
 
 
 def handle_client_connection(client_socket):
+    global peers
     global RFCs
     '''
     Connect: hostname:uddhav portNumber:1234
@@ -112,15 +117,13 @@ def handle_client_connection(client_socket):
                     ...
                     <cr><lf>
 
-
                     LIST ALL P2P-CI/1.0
                     Host: thishost.csc.ncsu.edu
                     Port: 5678
-
-
                     '''
                     list_of_rfcs = list()
-                    str_to_send = line[2] + " 200 OK\n\n"
+                    str_to_send = line[2] + " 200 OK\n"
+                    print(list_of_rfcs)
                     for rfc in list_of_rfcs:
                         str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " " + rfc[2] + " " + rfc[3] + "\n"
                     client_socket.send(bytearray(str_to_send, "utf8"))
@@ -153,7 +156,7 @@ def handle_client_connection(client_socket):
                 new_RFCs.append(rfc)
         RFCs = new_RFCs
         client_socket.close()
-    except KeyboardInterrupt:
+    except:
         del peers[exit_host]
         new_RFCs = []
         for rfc in RFCs:
