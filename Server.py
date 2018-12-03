@@ -7,7 +7,7 @@ peers = {}
 RFCs = []
 # RFCs = [[rfc_number ,rfc_title, hostname, portnumber]]
 
-bind_ip = '127.0.0.1'
+bind_ip = input("Enter port number for Server\n NOTE: For localhost USE 127.0.0.1")
 bind_port = 7734
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -79,7 +79,7 @@ def handle_client_connection(client_socket):
     '''
     try:
         while True:
-            request = client_socket.recv(1024)
+            request = client_socket.recv(8192)
             request = request.decode("utf-8")
             # print(str(request))
             request = request.split('\n')
