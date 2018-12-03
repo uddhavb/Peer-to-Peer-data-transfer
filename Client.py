@@ -88,7 +88,8 @@ def handle_peer_request(peer_sock):
 			# peer_sock.send(bytearray("\nEND\n", "utf8"))
 			peer_sock.close()
 			return
-
+	print("All RFCs available")
+	print(str(rfc_list))
 	msg = responseHeader("404 Not Found")
 	peer_sock.send(bytearray(msg, "utf8"))
 	# peer_sock.send(bytearray("\nEND\n", "utf8"))
@@ -243,17 +244,21 @@ while True:
 			print("---------------------------------------------------------------")
 			print(request.strip())
 			print("---------------------------------------------------------------")
-			processAndSaveFile(request, rfcNumber, title)
-			peerSocket.close()
-			temp_rfc = RFC(rfcNumber, title, title)
-			rfc_list.append(temp_rfc)
-			data = bytearray(addRFCMessage(temp_rfc, upload_server_host_name, port_number), 'utf8')
-			client.send(data)
-			request = client.recv(8192)
-			request = request.decode("utf8")
-			print("---------------------------------------------------------------")
-			print(request.strip())
-			print("---------------------------------------------------------------")
+			status = request.split("\n", 1)
+			request = status[1]
+			status = status[0].split(" ")
+			if status[1] == "200":
+				processAndSaveFile(request, rfcNumber, title)
+				peerSocket.close()
+				temp_rfc = RFC(rfcNumber, title, title)
+				rfc_list.append(temp_rfc)
+				data = bytearray(addRFCMessage(temp_rfc, upload_server_host_name, port_number), 'utf8')
+				client.send(data)
+				request = client.recv(8192)
+				request = request.decode("utf8")
+				print("---------------------------------------------------------------")
+				print(request.strip())
+				print("---------------------------------------------------------------")
 
 		elif inp == "EXIT":
 			data = bytearray("EXIT", 'utf8')
