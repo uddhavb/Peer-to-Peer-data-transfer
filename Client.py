@@ -228,12 +228,12 @@ while True:
 			print(request.strip())
 			print("---------------------------------------------------------------")
 		elif inp == "DOWNLOAD":
-			rfcNumber = input("Enter RFC number to be downloaded ")
-			hostname = input("Enter hostname from which to download the RFC ")
-			portNumber = int(input("Enter port number of the peer "))
+			downloadRFCNumber = input("Enter RFC number to be downloaded ")
+			downloadHostName = input("Enter HostName from which to download the RFC ")
+			downloadPortNumber = int(input("Enter port number of the peer "))
 			peerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			peerSocket.connect((hostname, portNumber))
-			data = bytearray(downloadRFCMessage(rfcNumber, hostname), 'utf8')
+			peerSocket.connect((downloadHostName, downloadPortNumber))
+			data = bytearray(downloadRFCMessage(downloadRFCNumber, downloadHostName), 'utf8')
 			peerSocket.send(data)
 
 			request = peerSocket.recv(8192)
@@ -250,9 +250,9 @@ while True:
 			request = status[1]
 			status = status[0].split(" ")
 			if status[1] == "200":
-				processAndSaveFile(request, rfcNumber, title)
+				processAndSaveFile(request, downloadRFCNumber, title)
 				peerSocket.close()
-				temp_rfc = RFC(rfcNumber, title, title)
+				temp_rfc = RFC(downloadRFCNumber, title, title)
 				rfc_list.append(temp_rfc)
 				data = bytearray(addRFCMessage(temp_rfc, upload_server_host_name, port_number), 'utf8')
 				client.send(data)
