@@ -46,8 +46,9 @@ def downloadRFCMessage(rfcNumber, host_name):
 def handle_peer_request(peer_sock):
 	request = peer_sock.recv(8192)
 	request = request.decode("utf-8")
-	print("---------------------------------------------------------------\n")
+	print("---------------------------------------------------------------")
 	print(request.strip())
+	print("---------------------------------------------------------------")
 	request = request.split('\n')
 	splitValue = request[0].split(" ")
 	method = splitValue[0]
@@ -144,7 +145,7 @@ class UploadPeer(threading.Thread):
 
 
 
-server_ip = input("Enter port number for Server\n NOTE: For localhost USE 127.0.0.1 ")
+server_ip = input("Enter IP address for Server\nNOTE: For localhost USE 127.0.0.1 ")
 
 # create an ipv4 (AF_INET) socket object using the tcp protocol (SOCK_STREAM)
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -177,8 +178,9 @@ for rfc in rfc_list:
 	client.send(data)
 	request = client.recv(8192)
 	request = request.decode("utf8")
-	print("---------------------------------------------------------------\n")
+	print("---------------------------------------------------------------")
 	print(request.strip())
+	print("---------------------------------------------------------------")
 
 # receive the response data (4096 is recommended buffer size)
 # response = client.recv(4096)
@@ -201,23 +203,26 @@ while True:
 				client.send(data)
 				request = client.recv(8192)
 				request = request.decode("utf8")
-				print("---------------------------------------------------------------\n")
+				print("---------------------------------------------------------------")
 				print(request.strip())
+				print("---------------------------------------------------------------")
 		elif inp == "LOOKUP":
 			data = bytearray(lookupRFCMessage(input("Enter RFC Number "), input("Enter RFC Title "), hostname, port_number),
 							 'utf8')
 			client.send(data)
 			request = client.recv(8192)
 			request = request.decode("utf-8")
-			print("---------------------------------------------------------------\n")
+			print("---------------------------------------------------------------")
 			print(request.strip())
+			print("---------------------------------------------------------------")
 		elif inp == "LIST":
 			data = bytearray(listAllMessage(hostname, port_number), 'utf8')
 			client.send(data)
 			request = client.recv(8192)
 			request = request.decode("utf8")
-			print("---------------------------------------------------------------\n")
+			print("---------------------------------------------------------------")
 			print(request.strip())
+			print("---------------------------------------------------------------")
 		elif inp == "DOWNLOAD":
 			rfcNumber = input("Enter RFC number to be downloaded ")
 			hostname = input("Enter hostname from which to download the RFC ")
@@ -234,8 +239,9 @@ while True:
 			title = title[0]
 			if version in title:
 				request = title + "\n" + request
-			print("---------------------------------------------------------------\n")
+			print("---------------------------------------------------------------")
 			print(request.strip())
+			print("---------------------------------------------------------------")
 			processAndSaveFile(request, rfcNumber, title)
 			peerSocket.close()
 			temp_rfc = RFC(rfcNumber, title, title)
@@ -244,8 +250,9 @@ while True:
 			client.send(data)
 			request = client.recv(8192)
 			request = request.decode("utf8")
-			print("---------------------------------------------------------------\n")
+			print("---------------------------------------------------------------")
 			print(request.strip())
+			print("---------------------------------------------------------------")
 
 		elif inp == "EXIT":
 			data = bytearray("EXIT", 'utf8')
