@@ -7,7 +7,7 @@ peers = {}
 RFCs = []
 # RFCs = [[rfc_number ,rfc_title, hostname, portnumber]]
 
-bind_ip = input("Enter port number for Server\n NOTE: For localhost USE 127.0.0.1")
+bind_ip = input("Enter port number for Server\n NOTE: For localhost USE 127.0.0.1 ")
 bind_port = 7734
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -80,7 +80,7 @@ def handle_client_connection(client_socket):
         while True:
             request = client_socket.recv(8192)
             request = request.decode("utf-8")
-            # print(str(request))
+            originalRequest = request
             request = request.split('\n')
             index = 0
             while request[index] != [] and index < len(request):
@@ -99,7 +99,8 @@ def handle_client_connection(client_socket):
                     P2P-CI/1.0 200 OK
                     RFC 123 A Proferred Official ICP thishost.csc.ncsu.edu 5678
                     '''
-                    print(str(request))
+                    print("---------------------------------------------------------------\n")
+                    print(str(originalRequest))
                     rfcNumber = line[2]
                     hostName = request[index + 1].split()[1]
                     portNumber = (request[index + 2].split(':')[1])
@@ -124,7 +125,8 @@ def handle_client_connection(client_socket):
                     Host: thishost.csc.ncsu.edu
                     Port: 5678
                     '''
-                    print(str(request))
+                    print("---------------------------------------------------------------\n")
+                    print(str(originalRequest))
                     list_of_rfcs = list()
                     str_to_send = line[2] + " 200 OK\n"
                     for rfc in list_of_rfcs:
@@ -140,7 +142,8 @@ def handle_client_connection(client_socket):
                     ...
                     <cr><lf>
                     '''
-                    print(str(request))
+                    print("---------------------------------------------------------------\n")
+                    print(str(originalRequest))
                     list_of_rfcs = lookup(line[2])
                     str_to_send = "P2P-CI/1.0 200 OK\n"
                     for rfc in list_of_rfcs:
