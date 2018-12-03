@@ -151,6 +151,7 @@ server_ip = input("Enter IP address for Server\nNOTE: For localhost USE 127.0.0.
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 hostname = input("Enter Hostname of this Client ")
+upload_server_host_name = hostname
 port_number = input("Enter Port number of this Client ")
 
 num_of_rfc = int(input("Enter Number for RFCs "))
@@ -246,7 +247,7 @@ while True:
 			peerSocket.close()
 			temp_rfc = RFC(rfcNumber, title, title)
 			rfc_list.append(temp_rfc)
-			data = bytearray(addRFCMessage(temp_rfc, hostname, port_number), 'utf8')
+			data = bytearray(addRFCMessage(temp_rfc, upload_server_host_name, port_number), 'utf8')
 			client.send(data)
 			request = client.recv(8192)
 			request = request.decode("utf8")
