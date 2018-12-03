@@ -55,6 +55,8 @@ def handle_peer_request(peer_sock):
 	rfcNumber = " ".join(splitValue[1:-1])
 	ver = splitValue[-1]
 	requestedHostname = request[1].split(" ")[1]
+	print("Method " + str(method))
+	print("Req HostName " + str(requestedHostname) + " Current HostName " + str(hostname))
 
 	if method != "GET":
 		msg = responseHeader("400 Bad Request")
