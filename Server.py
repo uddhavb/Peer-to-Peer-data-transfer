@@ -19,29 +19,28 @@ print('Listening on {}:{}'.format(bind_ip, bind_port))
 
 def addToPeerList(hostname, port_number):
     global peers
-    print("Add host to list")
+    #print("Add host to list")
     peers[hostname] = port_number
 
 
 def removeFromPeerList(hostname):
     global peers
-    print("Remove host from list")
+    #print("Remove host from list")
     del peers[hostname]
 
 
 def addToIndex(rfc_number, hostname, portNumber, rfc_title):
-    print("Adding")
+    #print("Adding")
     rfc_title = ' '.join([str(x) for x in rfc_title]).strip()
-    print("TITLE: " + rfc_title)
+    #print("TITLE: " + rfc_title)
     RFCs.append([rfc_number.strip(), rfc_title.strip(), hostname.strip(), portNumber.strip()])
 
 
 def lookup(rfc_number):
     global RFCs
-    print("lookup")
+    #print("lookup")
     retRFCs = []
     for RFC in RFCs:
-        print(str(RFC))
         if RFC[0] == rfc_number:
             retRFCs.append(RFC)
     return retRFCs
@@ -49,7 +48,7 @@ def lookup(rfc_number):
 
 def list():
     global RFCs
-    print("list all RFCs")
+    #print("list all RFCs")
     list_of_rfcs = []
     for RFC in RFCs:
         list_of_rfcs.append(RFC)
@@ -100,6 +99,7 @@ def handle_client_connection(client_socket):
                     P2P-CI/1.0 200 OK
                     RFC 123 A Proferred Official ICP thishost.csc.ncsu.edu 5678
                     '''
+                    print(str(request))
                     rfcNumber = line[2]
                     hostName = request[index + 1].split()[1]
                     portNumber = (request[index + 2].split(':')[1])
@@ -124,9 +124,9 @@ def handle_client_connection(client_socket):
                     Host: thishost.csc.ncsu.edu
                     Port: 5678
                     '''
+                    print(str(request))
                     list_of_rfcs = list()
                     str_to_send = line[2] + " 200 OK\n"
-                    print(list_of_rfcs)
                     for rfc in list_of_rfcs:
                         str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " " + rfc[2] + " " + rfc[3] + "\n"
                     client_socket.send(bytearray(str_to_send, "utf8"))
@@ -140,8 +140,8 @@ def handle_client_connection(client_socket):
                     ...
                     <cr><lf>
                     '''
+                    print(str(request))
                     list_of_rfcs = lookup(line[2])
-                    print(str(list_of_rfcs))
                     str_to_send = "P2P-CI/1.0 200 OK\n"
                     for rfc in list_of_rfcs:
                         str_to_send += rfc[0] + " " + rfc[1] + " " + rfc[2] + " " + rfc[3] + "\n"
