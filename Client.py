@@ -238,5 +238,7 @@ while True:
 		print(request.strip())
 
 	elif inp == "EXIT":
+		data = bytearray("EXIT", 'utf8')
+		client.send(data)
 		client.close()
 		break

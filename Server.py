@@ -33,15 +33,18 @@ def addToIndex(rfc_number, hostname, portNumber, rfc_title):
     print("Adding")
     rfc_title = ' '.join([str(x) for x in rfc_title]).strip()
     print("TITLE: " + rfc_title)
-    RFCs.append([rfc_number, rfc_title, hostname, portNumber])
+    RFCs.append([rfc_number.strip(), rfc_title.strip(), hostname.strip(), portNumber.strip()])
 
 
 def lookup(rfc_number):
     global RFCs
     print("lookup")
+    retRFCs = []
     for RFC in RFCs:
+        print(str(RFC))
         if RFC[0] == rfc_number:
-            print(RFC[2], end="\t")
+            retRFCs.append(RFC)
+    return retRFCs
 
 
 def list():
@@ -138,9 +141,10 @@ def handle_client_connection(client_socket):
                     <cr><lf>
                     '''
                     list_of_rfcs = lookup(line[2])
-                    str_to_send = line[2] + " 200 OK\n\n"
+                    print(str(list_of_rfcs))
+                    str_to_send = "P2P-CI/1.0 200 OK\n"
                     for rfc in list_of_rfcs:
-                        str_to_send += "RFC " + rfc[0] + " RFC " + rfc[1] + " " + rfc[2] + " " + rfc[3] + "\n"
+                        str_to_send += rfc[0] + " " + rfc[1] + " " + rfc[2] + " " + rfc[3] + "\n"
                     client_socket.send(bytearray(str_to_send, "utf8"))
                     index += 4
                 elif line[0] == "EXIT":
@@ -149,18 +153,23 @@ def handle_client_connection(client_socket):
                     exit_port = line[2]
                     break;
         print("-------------------------------------")
-        del peers[exit_host]
+        peers.pop(exit_host, None)
         new_RFCs = []
         for rfc in RFCs:
-            if rfc[2] != exit_host:
+            if rfc[2] == exit_host and rfc[3] == exit_port:
+                print("")
+            else:
                 new_RFCs.append(rfc)
         RFCs = new_RFCs
         client_socket.close()
     except:
-        del peers[exit_host]
+        # print("Exception and HostName: " + exit_host + " portNumber: " + exit_port)
+        peers.pop(exit_host, None)
         new_RFCs = []
         for rfc in RFCs:
-            if rfc[2] != exit_host:
+            if rfc[2] == exit_host and rfc[3] == exit_port:
+                print("")
+            else:
                 new_RFCs.append(rfc)
         RFCs = new_RFCs
         client_socket.close()
